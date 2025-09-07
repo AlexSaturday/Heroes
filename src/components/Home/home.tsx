@@ -1,5 +1,5 @@
 import {useNavigate} from 'react-router-dom'
-import './Home.css'
+import './home.css'
 import heroLogo from '../../assets/hero-logo.png'
 
 export const Home: React.FC = () => {

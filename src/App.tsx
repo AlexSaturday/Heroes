@@ -1,14 +1,26 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { Home } from './components/Home/home'
+import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom'
+import { Home } from './components/Home/home.tsx'
+import { RaceSelection } from './components/Race-selection/race-selection'
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/race-selection" element={<RaceSelection />} />
+        <Route path="/race/:slug" element={<RacePage />} />
       </Routes>
     </Router>
   )
 }
 
 export default App
+
+function RacePage() {
+  const { slug } = useParams()
+  return (
+    <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+      <h1>Вы выбрали: {slug}</h1>
+    </div>
+  )
+}

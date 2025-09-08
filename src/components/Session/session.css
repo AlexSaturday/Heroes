@@ -1,0 +1,18 @@
+.session-root {
+  display: flex;
+  min-height: 100vh;
+}
+
+.session-aside {
+  width: 220px;
+  padding: 16px;
+  border-right: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+
+.session-main {
+  flex: 1;
+  padding: 16px;
+}
+
+

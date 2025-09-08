@@ -22,15 +22,15 @@ const races: RaceItem[] = [
 export const RaceSelection: React.FC = () => {
   const navigate = useNavigate()
 
-  const handleClick = (slug: string) => {
-    navigate(`/race/${slug}`)
+  const handleClick = () => {
+    navigate('/session')
   }
 
   return (
     <div className="race-container">
       <div className="race-grid">
         {races.map(({ slug, name, src }) => (
-          <button key={slug} className="race-card" onClick={() => handleClick(slug)}>
+          <button key={slug} className="race-card" onClick={handleClick}>
             <img className="race-image" src={src} alt={name} />
           </button>
         ))}

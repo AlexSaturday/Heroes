@@ -12,8 +12,8 @@ export const Home: React.FC = () => {
     return (
       <div className="home-container">
         <div className="home-content">
-          <h1 className="home-title">Погрузитесь в мир ЛГБТ-героеев</h1>
-          <p className="home-subtitle">Выбери свой гендер и начни эпическое приключение</p>
+          <h1 className="home-title">Погрузитесь в мир героев</h1>
+          <p className="home-subtitle">Выбери свою расу и начни эпическое приключение</p>
           <button className="play-button" onClick={handlePlay}>
             Начать игру
           </button>

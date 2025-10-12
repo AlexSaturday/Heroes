@@ -1,18 +1,54 @@
 .session-root {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  background: #1a1a1a;
+  color: white;
 }
 
 .session-aside {
-  width: 220px;
-  padding: 16px;
-  border-right: 1px solid #e5e7eb;
-  background: #fafafa;
+  width: 300px;
+  background: #2d2d2d;
+  padding: 20px;
+  border-right: 1px solid #444;
 }
 
 .session-main {
   flex: 1;
-  padding: 16px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.race-display {
+  text-align: center;
+}
+
+.image-with-canvas {
+  position: relative;
+  display: inline-block;
+  margin-top: 20px;
+  /* Добавляем скролл если планшет не помещается */
+  max-width: 100%;
+  overflow: auto;
+}
+
+.background-image {
+  display: block;
+  border: 2px solid #444;
+  border-radius: 8px;
+  width: 1241px;    /* ← фиксированная ширина */
+  height: 1755px;   /* ← фиксированная высота */
+}
+
+.drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1241px;    /* ← такой же размер как у картинки */
+  height: 1755px;   /* ← */
+  cursor: crosshair;
+  background: transparent;
 }
 
 

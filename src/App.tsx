@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Home } from './components/Home/home.tsx'
 import { RaceSelection } from './components/Race-selection/race-selection'
 import { Session } from './components/Session/session'

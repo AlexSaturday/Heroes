@@ -16,22 +16,34 @@ interface DrawingCanvasProps {
   width: number;
   height: number;
   className?: string;
+  currentTool?: 'brush'| 'eraser'
+}
+
+interface Erasure {
+  points: Point[];
+  width: number;
 }
 
 export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
   width, 
   height, 
-  className
+  className,
+  currentTool = 'brush'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
+  
   const [lines, setLines] = useState<Line[]>([]);
   const [currentLine, setCurrentLine] = useState<Line | null>(null);
 
 
-  const [color, setColor] = useState('#000000');
-  const [lineWidth, setLineWidth] = useState(2);
+  const [color, _setColor] = useState('#000000');
+  const [lineWidth, _setLineWidth] = useState(2);
+
+
+  const [erasures, setErasures] = useState<Erasure[]>([])
+  const [currentErasure, setCurrentErasure] = useState<Erasure | null>(null);
 
 
   const getMousePos = (e:React.MouseEvent<HTMLCanvasElement>): Point => {
@@ -47,14 +59,20 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
   const handleMouseDown = (e:React.MouseEvent<HTMLCanvasElement>) => {
     const mousePos = getMousePos(e);
-
-    const newLine: Line = {
-      points: [mousePos],
-      color: color,
-      width: lineWidth
+    if (currentTool === 'brush'){
+      const newLine: Line = {
+        points: [mousePos],
+        color: color,
+        width: lineWidth
+      }
+      setCurrentLine(newLine)
+    } else if (currentTool === 'eraser'){
+      const newErasure: Erasure = {
+        points: [mousePos],
+        width: 20
+      }
+      setCurrentErasure(newErasure)
     }
-
-    setCurrentLine(newLine);
 
     setIsDrawing(true);
   }
@@ -64,26 +82,42 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
     const mousePos = getMousePos(e);
 
-    if(currentLine){
+    if(currentTool === 'brush' && currentLine){
       const updatedLine: Line = {
         ...currentLine,
         points:[...currentLine.points, mousePos]
       };
 
       setCurrentLine(updatedLine);
+
+    } else if (currentTool === 'eraser' && currentErasure) {
+      const updatedErasure: Erasure = {
+        ...currentErasure,
+        points: [...currentErasure.points, mousePos]
+      };
+      
+      setCurrentErasure(updatedErasure);
     }
   };
 
   const handleMouseUp = () => {
-    if (!isDrawing || !currentLine) return;
-
-    if(currentLine && currentLine.points.length > 1) {
-      setLines( prevLines => [...prevLines, currentLine]);
+    if (!isDrawing) return;
+    
+    if (currentTool === 'brush' && currentLine) {
+      if (currentLine.points.length > 1) {
+        setLines(prevLines => [...prevLines, currentLine]);
+      }
+      setCurrentLine(null);
+    } else if (currentTool === 'eraser' && currentErasure) {
+      if (currentErasure.points.length > 1) {
+        setErasures(prevErasures => [...prevErasures, currentErasure]);
+      }
+      setCurrentErasure(null);
     }
-
-    setCurrentLine(null);
+    
     setIsDrawing(false);
   }
+
 
   const handleMouseLeave = () => {
     if(isDrawing){
@@ -105,6 +139,35 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
     if (currentLine){
       drawLine(ctx, currentLine);
     }
+
+    if (erasures.length > 0 || currentErasure){
+      ctx.globalCompositeOperation = 'destination-out';
+    
+
+      erasures.forEach(erasure => {
+        drawErasure(ctx, erasure);
+      })
+
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+
+  const drawErasure = (ctx: CanvasRenderingContext2D, erasure: Erasure) => {
+    if (erasure.points.length === 0) return;
+
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+    ctx.lineWidth = erasure.width;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    ctx.moveTo(erasure.points[0].x, erasure.points[0].y);
+
+    for (let i = 1; i < erasure.points.length; i++) {
+      ctx.lineTo(erasure.points[i].x, erasure.points[i].y);
+    }
+    
+    ctx.stroke();
   }
 
   const drawLine = (ctx: CanvasRenderingContext2D, line: Line) =>{
@@ -127,7 +190,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
   useEffect(() => {
     redrawCanvas();
-  }, [lines, currentLine]);
+  }, [lines, currentLine, erasures, currentErasure]);
 
   return (
     <canvas

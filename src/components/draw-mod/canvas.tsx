@@ -20,8 +20,8 @@ export const Canvas: React.FC = () => {
   const [currentLine, setCurrentLine] = useState<Line | null>(null);
 
 
-  const [color, setColor] = useState('#000000');
-  const [width, setWidth] = useState(2);
+  const [color, _setColor] = useState('#000000');
+  const [width, _setWidth] = useState(2);
 
 
   const getMousePos = (e:React.MouseEvent<HTMLCanvasElement>): Point => {

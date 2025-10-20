@@ -97,6 +97,43 @@
   height: 1755px;
 }
 
+.mode-indicator {
+  margin-left: 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.tool-btn.active.eraser-points {
+  border-color: #007bff;
+  background: #007bff;
+  color: white;
+}
+
+.tool-btn.active.eraser-lines {
+  border-color: #dc3545;
+  background: #dc3545;
+  color: white;
+}
+
+.tooltip {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10000;
+  margin-top: 5px;
+}
+
+.tooltip::before {
+  display: none;
+}
+
 
 /* Кастомный курсор для кисти */
 .drawing-canvas.brush {

@@ -1,3 +1,5 @@
+import type { RaceItem } from '../../types'
+
 // Обложки для выбора рас
 import aqua from '../../Races/aqua.png'
 import elves from '../../Races/elves.png'
@@ -14,12 +16,7 @@ import orcsTablet from '../../Races/session-race/orcs.jpg'
 import humanTablet from '../../Races/session-race/human.jpg'
 import undeadTablet from '../../Races/session-race/undead.jpg'
 
-export type RaceItem = { 
-  slug: string; 
-  name: string; 
-  src: string;
-  sessionImage?: string;
-}
+
 
 export const races: RaceItem[] = [
   { slug: 'aqua', name: 'Aqua', src: aqua, sessionImage: aquaTablet },

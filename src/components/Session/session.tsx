@@ -1,27 +1,37 @@
 import React, { useState } from 'react'
 import './session.css'
 import { useLocation } from 'react-router-dom'
-import { races, type RaceItem } from '../../data/races/races'
-import { DrawingCanvas } from '../DrawingCanvs'
+import { races } from '../../data/races/races'
+import type { RaceItem, Tool, EraserMode } from '../../types'
+import { DrawingCanvas } from '../DrawingCanvas'
 import { FaPaintBrush, FaEraser, FaUndo} from 'react-icons/fa'
-
-
-type Tool = 'brush'| 'eraser'
 
 export const Session: React.FC = () => {
 
   const location = useLocation()
-  //console.log('Весь location:', location)
-  //console.log('Location state:', location.state)
   const selectedRaceSlug = location.state?.selectedRace
-  //console.log('SelectedRaceSlug:', selectedRaceSlug)
-
   const selectedRace: RaceItem | undefined = races.find(
     race => race.slug === selectedRaceSlug  
   )
-  //console.log('Найденная раса:', selectedRace)
 
+  // Стейты для инструментов
   const [currentTool, setCurrentTool] = useState<Tool>('brush')
+  const [eraserMode, setEraserMode] = useState<EraserMode>('points')
+  const [showEarsureTooltip, setshowEarsureTooltip] = useState(false)
+
+  const handleEraserClick = () =>{
+    if (currentTool === 'eraser'){
+      setEraserMode(prev => prev === 'points' ? 'lines': 'points')
+      setshowEarsureTooltip(true)
+
+      setTimeout(() => {
+        setshowEarsureTooltip(false)
+      }, 2000);
+    } else{
+      setCurrentTool('eraser')
+      setEraserMode('points')
+    }
+  }
 
   if (!selectedRace) {
     return (
@@ -42,17 +52,33 @@ export const Session: React.FC = () => {
                 onClick={() => setCurrentTool('brush')}
                 title='кисть'
               >
-                <FaPaintBrush className='tool-icn' />
+                <FaPaintBrush className='tool-icon' />
                 <span>кисть</span>
               </button>
+
               <button
-                className={`tool-btn ${currentTool === 'eraser' ? 'active' : ''}`}
-                onClick={() => setCurrentTool('eraser')}
+                className={`tool-btn ${currentTool === 'eraser' ? 'active' : ''} ${
+                 currentTool === 'eraser' ? `eraser-${eraserMode}` : ''
+                }`}
+                onClick={handleEraserClick}
                 title="Ластик"
               >
                 <FaEraser className="tool-icon" />
                 <span>Ластик</span>
+
+                {currentTool === 'eraser' && (
+                  <span className='mode-indicator'>
+                    {eraserMode === 'points' ? '•' : '|'}
+                  </span>
+                )}
               </button>
+
+              {showEarsureTooltip &&(
+                <div className='tooltip'>
+                  Режим: {eraserMode === 'points' ? 'Стиарние точек' : "Стирание линий"}
+                </div>
+              )}
+
               <button
                 className="tool-btn"
                 onClick={() => console.log('Undo pressed')}
@@ -81,6 +107,7 @@ export const Session: React.FC = () => {
                         height={1755}     //  высота планшета  
                         className={`drawing-canvas ${currentTool}`}
                         currentTool={currentTool}
+                        eraserMode={eraserMode}
                     />
                 </div>
             </div>

@@ -1,34 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
+import type { Point, Line, DrawingCanvasProps, Erasure } from '../types';
+import { useSmartEraser } from '../useSmartEraser';
 
-
-interface Point{
-    x: number;
-    y: number;
-}
-
-interface Line{
-    points: Point[];
-    color: string;
-    width: number;
-}
-
-interface DrawingCanvasProps {
-  width: number;
-  height: number;
-  className?: string;
-  currentTool?: 'brush'| 'eraser'
-}
-
-interface Erasure {
-  points: Point[];
-  width: number;
-}
 
 export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
   width, 
   height, 
   className,
-  currentTool = 'brush'
+  currentTool = 'brush',
+  eraserMode = 'points'
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -45,6 +25,13 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
   const [erasures, setErasures] = useState<Erasure[]>([])
   const [currentErasure, setCurrentErasure] = useState<Erasure | null>(null);
 
+
+  const {smartErase} = useSmartEraser({
+    lines,
+    setLines,
+    eraserMode,
+    eraserSize: 20
+  })
 
   const getMousePos = (e:React.MouseEvent<HTMLCanvasElement>): Point => {
     const canvas = canvasRef.current;
@@ -110,7 +97,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
       setCurrentLine(null);
     } else if (currentTool === 'eraser' && currentErasure) {
       if (currentErasure.points.length > 1) {
-        setErasures(prevErasures => [...prevErasures, currentErasure]);
+        smartErase(currentErasure)
       }
       setCurrentErasure(null);
     }
@@ -140,16 +127,16 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
       drawLine(ctx, currentLine);
     }
 
-    if (erasures.length > 0 || currentErasure){
-      ctx.globalCompositeOperation = 'destination-out';
+    // if (erasures.length > 0 || currentErasure){
+    //   ctx.globalCompositeOperation = 'destination-out';
     
 
-      erasures.forEach(erasure => {
-        drawErasure(ctx, erasure);
-      })
+    //   erasures.forEach(erasure => {
+    //     drawErasure(ctx, erasure);
+    //   })
 
-      ctx.globalCompositeOperation = 'source-over';
-    }
+    //   ctx.globalCompositeOperation = 'source-over';
+    // }
   }
 
   const drawErasure = (ctx: CanvasRenderingContext2D, erasure: Erasure) => {

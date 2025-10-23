@@ -18,7 +18,7 @@ export const useSmartEraser = ({
 }: UseSmartEraserProps) => {
     
     // Режим 1: Стирание точек в области
-    const erasePointsInArea = (erasure: Erasure) => {
+    const erasePointsInArea = (erasure: Erasure): Line[] => {
         const updatedLines = lines.map(line =>{
             const keptPoints = line.points.filter(point =>{
                 return !isPointInErasureArea(point, erasure)
@@ -29,24 +29,24 @@ export const useSmartEraser = ({
             }
         }).filter(line => line.points.length > 1)
 
-        setLines(updatedLines)
+        return (updatedLines)
     }
 
     // Режим 2: Удаление целых линий
-    const eraseWholeLines = (erasure: Erasure) =>{
-        const updatedLines = lines.filter(line =>{
+    const eraseWholeLines = (erasure: Erasure): Line[] =>{
+        return lines.filter(line => {
             return !isLineTouchedByEraser(line, erasure)
         })
-        setLines(updatedLines)
     }
 
     //Основаная функция стирания
-    const smartErase = (erasure: Erasure) =>{
+    const getErasedLines = (erasure: Erasure): Line[] =>{
         if (eraserMode === 'lines'){
-            eraseWholeLines(erasure)
-        }else{
-            erasePointsInArea(erasure)
+            return eraseWholeLines(erasure)
+        } else{
+            return erasePointsInArea(erasure)
         }
     }
-    return {smartErase}
+
+    return {getErasedLines}
 }

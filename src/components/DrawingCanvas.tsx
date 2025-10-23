@@ -13,20 +13,14 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
-  
   const [lines, setLines] = useState<Line[]>([]);
   const [currentLine, setCurrentLine] = useState<Line | null>(null);
-
-
   const [color, _setColor] = useState('#000000');
   const [lineWidth, _setLineWidth] = useState(2);
-
-
-  const [erasures, setErasures] = useState<Erasure[]>([])
   const [currentErasure, setCurrentErasure] = useState<Erasure | null>(null);
 
 
-  const {smartErase} = useSmartEraser({
+  const {getErasedLines} = useSmartEraser({
     lines,
     setLines,
     eraserMode,
@@ -84,6 +78,11 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
       };
       
       setCurrentErasure(updatedErasure);
+
+      if (updatedErasure.points.length > 1){
+        const newLines = getErasedLines(updatedErasure)
+        setLines(newLines)
+      }
     }
   };
 
@@ -96,9 +95,6 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
       }
       setCurrentLine(null);
     } else if (currentTool === 'eraser' && currentErasure) {
-      if (currentErasure.points.length > 1) {
-        smartErase(currentErasure)
-      }
       setCurrentErasure(null);
     }
     
@@ -126,35 +122,6 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
     if (currentLine){
       drawLine(ctx, currentLine);
     }
-
-    // if (erasures.length > 0 || currentErasure){
-    //   ctx.globalCompositeOperation = 'destination-out';
-    
-
-    //   erasures.forEach(erasure => {
-    //     drawErasure(ctx, erasure);
-    //   })
-
-    //   ctx.globalCompositeOperation = 'source-over';
-    // }
-  }
-
-  const drawErasure = (ctx: CanvasRenderingContext2D, erasure: Erasure) => {
-    if (erasure.points.length === 0) return;
-
-    ctx.beginPath();
-    ctx.strokeStyle = 'rgba(0,0,0,1)';
-    ctx.lineWidth = erasure.width;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-
-    ctx.moveTo(erasure.points[0].x, erasure.points[0].y);
-
-    for (let i = 1; i < erasure.points.length; i++) {
-      ctx.lineTo(erasure.points[i].x, erasure.points[i].y);
-    }
-    
-    ctx.stroke();
   }
 
   const drawLine = (ctx: CanvasRenderingContext2D, line: Line) =>{
@@ -177,7 +144,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
   useEffect(() => {
     redrawCanvas();
-  }, [lines, currentLine, erasures, currentErasure]);
+  }, [lines, currentLine]);
 
   return (
     <canvas

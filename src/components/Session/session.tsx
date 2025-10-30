@@ -16,20 +16,21 @@ export const Session: React.FC = () => {
 
   // Стейты для инструментов
   const [currentTool, setCurrentTool] = useState<Tool>('brush')
-  const [eraserMode, setEraserMode] = useState<EraserMode>('points')
+  const [eraserMode, setEraserMode] = useState<EraserMode>('lines')
   const [showEarsureTooltip, setshowEarsureTooltip] = useState(false)
 
   const handleEraserClick = () =>{
     if (currentTool === 'eraser'){
-      setEraserMode(prev => prev === 'points' ? 'lines': 'points')
+      // setEraserMode(prev => prev === 'points' ? 'lines': 'points')
       setshowEarsureTooltip(true)
+      
 
       setTimeout(() => {
         setshowEarsureTooltip(false)
       }, 2000);
     } else{
       setCurrentTool('eraser')
-      setEraserMode('points')
+      setEraserMode('lines')
     }
   }
 
@@ -73,11 +74,7 @@ export const Session: React.FC = () => {
                 )}
               </button>
 
-              {showEarsureTooltip &&(
-                <div className='tooltip'>
-                  Режим: {eraserMode === 'points' ? 'Стиарние точек' : "Стирание линий"}
-                </div>
-              )}
+              
 
               <button
                 className="tool-btn"
@@ -109,6 +106,11 @@ export const Session: React.FC = () => {
                         currentTool={currentTool}
                         eraserMode={eraserMode}
                     />
+                        {showEarsureTooltip &&(
+                    <div className='tooltip'>
+                      Режим: {eraserMode === 'points' ? 'Стирание точек' : "Стирание линий"}
+                    </div>
+                  )}
                 </div>
             </div>
         </main>

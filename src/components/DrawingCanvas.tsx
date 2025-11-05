@@ -13,6 +13,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
+  const [isErasing , setIsErasing] = useState(false)
   const [lines, setLines] = useState<Line[]>([]);
   const [currentLine, setCurrentLine] = useState<Line | null>(null);
   const [color, _setColor] = useState('#000000');
@@ -27,6 +28,11 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
     eraserSize: 20
   })
 
+  const handleContextMenu = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    e.preventDefault(); 
+    return false;
+  };
+
   const getMousePos = (e:React.MouseEvent<HTMLCanvasElement>): Point => {
     const canvas = canvasRef.current;
     if (!canvas) return {x: 0, y: 0};
@@ -40,14 +46,15 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
   const handleMouseDown = (e:React.MouseEvent<HTMLCanvasElement>) => {
     const mousePos = getMousePos(e);
-    if (currentTool === 'brush'){
+    if (e.button === 0 && currentTool === 'brush'){
       const newLine: Line = {
         points: [mousePos],
         color: color,
         width: lineWidth
       }
       setCurrentLine(newLine)
-    } else if (currentTool === 'eraser'){
+    } else if (e.button === 2 || currentTool === 'eraser'){
+      setIsErasing(true)
       const newErasure: Erasure = {
         points: [mousePos],
         width: 20
@@ -63,7 +70,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
     const mousePos = getMousePos(e);
 
-    if(currentTool === 'brush' && currentLine){
+    if(currentTool === 'brush' && currentLine && !isErasing){
       const updatedLine: Line = {
         ...currentLine,
         points:[...currentLine.points, mousePos]
@@ -71,7 +78,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
       setCurrentLine(updatedLine);
 
-    } else if (currentTool === 'eraser' && currentErasure) {
+    } else if ((isErasing || currentTool === 'eraser') && currentErasure) {
       const updatedErasure: Erasure = {
         ...currentErasure,
         points: [...currentErasure.points, mousePos]
@@ -83,18 +90,25 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
         const newLines = getErasedLines(updatedErasure)
         setLines(newLines)
       }
+      setCurrentLine(null)
     }
   };
 
   const handleMouseUp = () => {
     if (!isDrawing) return;
+  
+    if (isErasing) {
+      setIsErasing(false);
+    }
     
-    if (currentTool === 'brush' && currentLine) {
+    if (currentLine) {
       if (currentLine.points.length > 1) {
         setLines(prevLines => [...prevLines, currentLine]);
       }
       setCurrentLine(null);
-    } else if (currentTool === 'eraser' && currentErasure) {
+    }
+    
+    if (currentErasure) {
       setCurrentErasure(null);
     }
     
@@ -113,6 +127,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
     const ctx = canvas?.getContext('2d');
     if (!ctx || !canvas) return;
 
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     lines.forEach(line => {
@@ -144,7 +159,18 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
   useEffect(() => {
     redrawCanvas();
-  }, [lines, currentLine]);
+    
+    if (lines.length > 0) {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      
+      if (ctx && canvas) {
+        // Нарисуем невидимую точку чтобы запустить перерисовку
+        ctx.fillStyle = 'transparent';
+        ctx.fillRect(0, 0, 1, 1);
+      }
+    }
+  }, [lines, currentLine, width, height]);
 
   return (
     <canvas
@@ -156,6 +182,7 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
+        onContextMenu={handleContextMenu}
     />
       );
 };

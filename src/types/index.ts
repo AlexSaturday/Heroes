@@ -15,17 +15,19 @@ export interface Erasure {
     width: number;
 }
 
-// Типы для инструментов
+
 export type Tool = 'brush' | 'eraser';
 export type EraserMode = 'points' | 'lines';
 
-// Пропсы компонентов
+
 export interface DrawingCanvasProps {
     width: number;
     height: number;
     className?: string;
     currentTool?: Tool;
     eraserMode?: EraserMode;
+    lines?: Line[]; 
+    setLines?: (lines: Line[]) => void; 
 }
 
 export interface RaceItem {

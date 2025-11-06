@@ -86,10 +86,10 @@ export const Session: React.FC = () => {
                 )}
               </button>
 
-              {/* <button
+              <button
                 className="tool-btn"
                 onClick={() => {
-                  // Тест store
+                  // Тест store button
                   const state = useDrawingStore.getState()
                   console.log('Store state:', state)
                 }}
@@ -97,7 +97,7 @@ export const Session: React.FC = () => {
               >
                 <span>🧪</span>
                 <span>Тест Store</span>
-              </button> */}
+              </button>
 
               <button
                 className="tool-btn"

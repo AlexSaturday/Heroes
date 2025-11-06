@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useDrawingStore } from '../../store/drawingStore'
 import './session.css'
 import { useLocation } from 'react-router-dom'
 import { races } from '../../data/races/races'
@@ -7,60 +8,38 @@ import { DrawingCanvas } from '../DrawingCanvas'
 import { FaPaintBrush, FaEraser, FaUndo, FaCompress, FaExpand} from 'react-icons/fa'
 
 export const Session: React.FC = () => {
-
-  const [lines, setLines] = useState<Line[]>([])
-
-
-
   
-  const [isExpanded, setIsExpanded] = useState(false);
   const location = useLocation()
   const selectedRaceSlug = location.state?.selectedRace
   const selectedRace: RaceItem | undefined = races.find(
     race => race.slug === selectedRaceSlug  
   )
 
-  const [currentTool, setCurrentTool] = useState<Tool>('brush')
-  const [eraserMode, setEraserMode] = useState<EraserMode>('lines')
-  const [showEarsureTooltip, setshowEarsureTooltip] = useState(false)
-  const [history, setHistory] = useState<Line[][]>([]);
-
-  const updateLines = (newLines: Line[]) => {
-    console.log('=== UPDATE LINES ===');
-    console.log('Current lines:', lines.length);
-    console.log('New lines:', newLines.length);
-    // ✅ Гарантированно сохраняем текущее состояние
-    setLines(currentLines => {
-      setHistory(prev => [...prev, currentLines]); // Сохраняем перед изменением
-      return newLines; // Возвращаем новое состояние
-    });
-  };
-  
-  const handleUndo = () => {
-    console.log('=== UNDO ===');
-    console.log('History length:', history.length);
-    console.log('Current lines:', lines.length);
-    if (history.length > 0) {
-      const previousState = history[history.length - 1];
-      setLines(previousState);
-      setHistory(prev => prev.slice(0, -1)); 
-    }
-  };
-
-
+  const { 
+    isExpanded, 
+    toggleExpanded,
+    currentTool,
+    setTool,
+    eraserMode, 
+    setEraserMode,
+    showEraserTooltip,
+    showTooltip,
+    hideTooltip,
+    lines,
+    setLines,
+    undo
+  } = useDrawingStore();
 
   
   const handleEraserClick = () =>{
     if (currentTool === 'eraser'){
       // setEraserMode(prev => prev === 'points' ? 'lines': 'points')
-      setshowEarsureTooltip(true)
-      
-
+      showTooltip()
       setTimeout(() => {
-        setshowEarsureTooltip(false)
+        hideTooltip()
       }, 2000);
     } else{
-      setCurrentTool('eraser')
+      setTool('eraser')
       setEraserMode('lines')
     }
   }
@@ -83,7 +62,7 @@ export const Session: React.FC = () => {
               <h3>Инструменты</h3>
               <button
                 className= {`tool-btn ${currentTool === 'brush' ? 'active': ''}`}
-                onClick={() => setCurrentTool('brush')}
+                onClick={() => setTool('brush')}
                 title='кисть'
               >
                 <FaPaintBrush className='tool-icon' />
@@ -107,11 +86,22 @@ export const Session: React.FC = () => {
                 )}
               </button>
 
-              
+              {/* <button
+                className="tool-btn"
+                onClick={() => {
+                  // Тест store
+                  const state = useDrawingStore.getState()
+                  console.log('Store state:', state)
+                }}
+                title="Тест store"
+              >
+                <span>🧪</span>
+                <span>Тест Store</span>
+              </button> */}
 
               <button
                 className="tool-btn"
-                onClick={handleUndo}
+                onClick={undo}
                 title="Отменить последнее действие"
               >
                 <FaUndo className="tool-icon" />
@@ -119,7 +109,7 @@ export const Session: React.FC = () => {
               </button>
               <button
                 className={`tool-btn ${isExpanded ? 'active' : ''}`}
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={toggleExpanded}
                 title={isExpanded ? "Уменьшить область" : "Расширить область"}
               >
                 <span>{isExpanded ? <FaCompress className="tool-icon" /> : <FaExpand className="tool-icon" />}</span>
@@ -144,7 +134,7 @@ export const Session: React.FC = () => {
                         <DrawingCanvas
                             
                             lines={lines}
-                            setLines={updateLines} 
+                            setLines={setLines} 
                             width={isExpanded ? 1641 : 1241}
                             height={1755}  
                             className={`drawing-canvas ${currentTool} ${isExpanded ? 'expanded' : ''}`}
@@ -155,7 +145,7 @@ export const Session: React.FC = () => {
                 </div>
             </div>
         </main>
-         {showEarsureTooltip &&(
+         {showEraserTooltip &&(
           <div className='tooltip'>
           Режим: {eraserMode === 'points' ? 'Стирание точек' : "Стирание линий"}
           </div>

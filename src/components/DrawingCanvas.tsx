@@ -4,6 +4,8 @@ import { useSmartEraser } from '../useSmartEraser';
 
 
 export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
+  lines: externalLines,
+  setLines: externalSetLines,
   width, 
   height, 
   className,
@@ -14,11 +16,14 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [isErasing , setIsErasing] = useState(false)
-  const [lines, setLines] = useState<Line[]>([]);
+  // const [lines, setLines] = useState<Line[]>([]);
   const [currentLine, setCurrentLine] = useState<Line | null>(null);
   const [color, _setColor] = useState('#000000');
   const [lineWidth, _setLineWidth] = useState(2);
   const [currentErasure, setCurrentErasure] = useState<Erasure | null>(null);
+
+  const lines = externalLines || [];
+  const setLines = externalSetLines || (() => {});
 
 
   const {getErasedLines} = useSmartEraser({
@@ -103,7 +108,8 @@ export const DrawingCanvas: React.FC <DrawingCanvasProps> = ({
     
     if (currentLine) {
       if (currentLine.points.length > 1) {
-        setLines(prevLines => [...prevLines, currentLine]);
+        const newLines = [...lines, currentLine];
+        setLines(newLines);
       }
       setCurrentLine(null);
     }
